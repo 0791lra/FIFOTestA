@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1)
 set (CMAKE_CXX_STANDARD 11)
 project (FifoTest)
-add_executable(FifoTest Src/fifo.cpp Src/fifoTests.cpp)
+add_executable(FifoTest Src/fifoTests.cpp)
 target_include_directories(FifoTest PUBLIC Catch2)
