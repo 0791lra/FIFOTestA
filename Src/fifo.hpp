@@ -14,11 +14,41 @@
 template<class T> class Fifo
 {
 public:
+    /// Default constructor
+    Fifo()
+        : qCapacity(1)
+    {
+    };
+
     /// Create a Fifo with specified capacity
     Fifo(unsigned int capacity)
         : qCapacity(capacity)
     {
     };
+
+    // Delete copy construstor and operator because copying the underlying queue
+    // and its contents doen't make sense
+    Fifo(const Fifo&) = delete;
+    Fifo& operator=(const Fifo&) = delete;
+
+    // Move operator and constructor
+    Fifo(Fifo&& other)
+    {
+        // Lock both queues
+        std::lock_guard<std::mutex> otherPushLock(other.queueMutex);
+        std::lock_guard<std::mutex> pushLock(queueMutex);
+
+        fifoQ = std::move(other.fifoQ);
+    }
+
+    Fifo& operator=(Fifo&& other)
+    {
+        // Lock both queues
+        std::lock_guard<std::mutex> otherPushLock(other.queueMutex);
+        std::lock_guard<std::mutex> pushLock(queueMutex);
+
+        fifoQ = std::move(other.fifoQ);
+    }
 
     /// Push an item onto the stack unless it is full.
     bool push(const T& i)
@@ -62,6 +92,7 @@ public:
     };
 
 private:
+
     std::queue<T> fifoQ; /*<! encapsulated queue */
     unsigned int qCapacity; /*<! maximum number of items that can be queued */
 

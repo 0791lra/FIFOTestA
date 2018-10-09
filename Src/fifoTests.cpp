@@ -62,3 +62,59 @@ TEST_CASE("Fifo pop_try", "Calling pop_try instead of pop") {
     returned = f3->pop_try();
     REQUIRE(!returned.first);
 }
+
+TEST_CASE("Fifo move operations", "Test move constructor and operator") {
+    Fifo<int> f1(5);
+    f1.push(0);
+    f1.push(1);
+    f1.push(2);
+    f1.push(3);
+    f1.push(4);
+    Fifo<int> f2(std::move(f1));
+    // f1 should be empty now
+    std::pair<bool, int> returned = f1.pop_try();
+    REQUIRE(!returned.first);
+    // and its contents are now in f2
+    returned = f2.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 0);
+    returned = f2.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 1);
+    returned = f2.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 2);
+    returned = f2.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 3);
+    returned = f2.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 4);
+
+    Fifo<int> f3(5);
+    f3.push(0);
+    f3.push(1);
+    f3.push(2);
+    f3.push(3);
+    f3.push(4);
+    Fifo<int> f4 = std::move(f3);
+    // f3 should be empty now
+    returned = f3.pop_try();
+    REQUIRE(!returned.first);
+    // and its contents are now in f4
+    returned = f4.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 0);
+    returned = f4.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 1);
+    returned = f4.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 2);
+    returned = f4.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 3);
+    returned = f4.pop_try();
+    REQUIRE(returned.first);
+    REQUIRE(returned.second == 4);
+}
