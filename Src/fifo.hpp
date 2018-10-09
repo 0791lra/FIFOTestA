@@ -34,7 +34,7 @@ public:
     /// Pop an item off the stack, waiting for one to be available
     T pop()
     {
-        std::unique_lock<std::mutex> lock(queueMutex, std::adopt_lock);
+        std::unique_lock<std::mutex> lock(queueMutex);
         while(fifoQ.size() == 0) {
             lock.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -49,7 +49,7 @@ public:
     std::pair<bool, T> pop_try()
     {
         std::pair<bool, T> retVal;
-        std::unique_lock<std::mutex> lock(queueMutex, std::adopt_lock);
+        std::lock_guard<std::mutex> pushLock(queueMutex);
         if(fifoQ.size() > 0) {
             retVal.first = true;
             retVal.second = fifoQ.front();
