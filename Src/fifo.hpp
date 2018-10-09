@@ -26,6 +26,13 @@ public:
     {
     };
 
+    ~Fifo()
+    {
+        // Get a lock before allowing the queue to be deleted
+        std::lock_guard<std::mutex> pushLock(queueMutex);
+        fifoQ.clear();
+    }
+
     // Delete copy construstor and operator because copying the underlying queue
     // and its contents doen't make sense
     Fifo(const Fifo&) = delete;
@@ -57,7 +64,7 @@ public:
         if(fifoQ.size() >= qCapacity) {
             return false;
         }
-        fifoQ.push(i);
+        fifoQ.push_back(i);
         return true;
     };
 
@@ -71,7 +78,7 @@ public:
             lock.lock();
         }
         T retVal = fifoQ.front();
-        fifoQ.pop();
+        fifoQ.pop_front();
         return retVal;
     };
 
@@ -83,7 +90,7 @@ public:
         if(fifoQ.size() > 0) {
             retVal.first = true;
             retVal.second = fifoQ.front();
-            fifoQ.pop();
+            fifoQ.pop_front();
         }
         else {
             retVal.first = false;
@@ -93,7 +100,7 @@ public:
 
 private:
 
-    std::queue<T> fifoQ; /*<! encapsulated queue */
+    std::deque<T> fifoQ; /*<! encapsulated queue */
     unsigned int qCapacity; /*<! maximum number of items that can be queued */
 
     std::mutex queueMutex; /*<! Mutex to protect the queue */
